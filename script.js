@@ -91,10 +91,18 @@ function startGame() {
         document.getElementById("startOverlay").style.display = "none";
         document.getElementById("orientationMessage").style.display = "none";
         gameStarted = true;
+
+        // Request fullscreen if available
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen();
+        } else if (document.documentElement.webkitRequestFullscreen) { // Safari support
+            document.documentElement.webkitRequestFullscreen();
+        }
     } else {
         document.getElementById("orientationMessage").style.display = "flex";
     }
 }
+
 
 // Movement controls
 function startMoving(direction) {
