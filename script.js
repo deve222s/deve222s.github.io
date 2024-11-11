@@ -174,6 +174,7 @@ function showDialogBox(dialogText) {
 
 // Disable movement for 3 seconds and dim controls
 function disableMovementFor3Seconds() {
+    clearInterval(moveInterval); // Ensure no movement intervals continue
     dialogActive = true; // Ensure dialog is active during the delay
     document.querySelectorAll('.controls button').forEach(button => button.style.opacity = "0.5");
 
@@ -183,25 +184,38 @@ function disableMovementFor3Seconds() {
     }, 5000);
 }
 
-// Movement controls with temporary disable handling
+
+// Movement controls with stricter disable handling
 function startMoving(direction) {
+    // Clear any existing movement intervals to prevent stacking
+    clearInterval(moveInterval);
+
+    // Block movement if dialog is active or game is not started
     if (!gameStarted || gameOver || dialogActive) return;
 
     const step = playerSize * 0.12;
 
+    // Define the movement function with an extra check for dialogActive
     function move() {
+        if (dialogActive) {
+            clearInterval(moveInterval); // Stop movement if dialog is active
+            return;
+        }
+
         if (direction === 'up') player.y = max(0, player.y - step);
         if (direction === 'down') player.y = min(height - playerSize, player.y + step);
         if (direction === 'left') player.x = max(0, player.x - step);
         if (direction === 'right') player.x = min(width - playerSize, player.x + step);
     }
 
+    // Start a new interval for the movement
     moveInterval = setInterval(move, 35);
 }
 
 function stopMoving() {
     clearInterval(moveInterval);
 }
+
 
 // Detect orientation change and set needsRefresh flag if going from portrait to landscape
 window.addEventListener("orientationchange", () => {
