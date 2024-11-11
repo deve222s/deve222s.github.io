@@ -7,7 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
     <style>
-        /* Empêcher sélection de texte, menu contextuel, et zoom */
+        /* Disable text selection, context menu, and zoom */
         html, body {
             margin: 0;
             padding: 0;
@@ -17,12 +17,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            -webkit-touch-callout: none; /* iOS long press */
-            user-select: none; /* Désactive sélection de texte */
-            -webkit-user-select: none;
-            -ms-user-select: none;
-            -moz-user-select: none;
-            touch-action: manipulation; /* Désactive le double-tap zoom sur mobile */
+            -webkit-touch-callout: none;
+            user-select: none;
+            touch-action: manipulation;
         }
 
         canvas {
@@ -31,26 +28,38 @@
             height: 100vh;
         }
 
-        /* Ajuster la position des boutons plus haut */
+        /* Position the controls slightly further from the top-left corner */
         .controls {
             position: absolute;
-            bottom: 80px; /* Plus haut qu'avant */
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
+            top: 50px; /* Adjusted to be further down */
+            left: 40px; /* Adjusted to be further right */
+            display: grid;
+            grid-template-areas:
+                ". up ."
+                "left . right"
+                ". down .";
+            grid-template-rows: auto auto auto;
+            grid-template-columns: auto auto auto;
+            gap: 5px;
             z-index: 10;
         }
 
+        /* Style for control buttons */
         .controls button {
             padding: 10px;
             font-size: 16px;
-            user-select: none; /* Empêche sélection du texte */
+            user-select: none;
             -webkit-user-select: none;
-            -ms-user-select: none;
-            outline: none;
             cursor: pointer;
+            width: 50px; /* Specify width for uniform button size */
+            height: 50px; /* Specify height for uniform button size */
         }
+
+        /* Assign each button to its correct area */
+        .up { grid-area: up; }
+        .left { grid-area: left; }
+        .right { grid-area: right; }
+        .down { grid-area: down; }
 
         #startOverlay, #orientationMessage {
             position: absolute;
@@ -83,14 +92,14 @@
         Puis relance la page
     </div>
     <div class="controls">
-        <button ontouchstart="startMoving('up')" ontouchend="stopMoving()" onmousedown="startMoving('up')" onmouseup="stopMoving()">↑</button>
-        <button ontouchstart="startMoving('left')" ontouchend="stopMoving()" onmousedown="startMoving('left')" onmouseup="stopMoving()">←</button>
-        <button ontouchstart="startMoving('right')" ontouchend="stopMoving()" onmousedown="startMoving('right')" onmouseup="stopMoving()">→</button>
-        <button ontouchstart="startMoving('down')" ontouchend="stopMoving()" onmousedown="startMoving('down')" onmouseup="stopMoving()">↓</button>
+        <button class="up" ontouchstart="startMoving('up')" ontouchend="stopMoving()" onmousedown="startMoving('up')" onmouseup="stopMoving()">↑</button>
+        <button class="left" ontouchstart="startMoving('left')" ontouchend="stopMoving()" onmousedown="startMoving('left')" onmouseup="stopMoving()">←</button>
+        <button class="right" ontouchstart="startMoving('right')" ontouchend="stopMoving()" onmousedown="startMoving('right')" onmouseup="stopMoving()">→</button>
+        <button class="down" ontouchstart="startMoving('down')" ontouchend="stopMoving()" onmousedown="startMoving('down')" onmouseup="stopMoving()">↓</button>
     </div>
     <script src="script.js"></script>
     <script>
-        // Empêche le zoom tactile (pinch-to-zoom) et le double-tap zoom
+        // Prevent pinch-to-zoom and double-tap zoom
         document.addEventListener('touchmove', function (event) {
             if (event.scale !== 1) { event.preventDefault(); }
         }, { passive: false });
