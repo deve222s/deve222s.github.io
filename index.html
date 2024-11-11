@@ -16,6 +16,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            -webkit-touch-callout: none; /* Disable long-press context menu on iOS */
         }
 
         canvas {
@@ -37,6 +38,9 @@
         .controls button {
             padding: 10px;
             font-size: 16px;
+            user-select: none; /* Prevent text selection */
+            -webkit-user-select: none;
+            -ms-user-select: none;
         }
 
         #startOverlay, #orientationMessage {
@@ -52,11 +56,10 @@
             z-index: 20;
         }
 
-        /* Center the orientation message a bit higher on the screen */
         #orientationMessage {
             display: none;
-            top: 5%; /* Adjust this value as needed to place the message higher */
-            transform: translateY(-20%); /* Offset to center based on the "top" position */
+            top: 5%;
+            transform: translateY(-20%);
             text-align: center;
             padding: 20px;
         }
@@ -77,5 +80,26 @@
         <button ontouchstart="startMoving('down')" ontouchend="stopMoving()" onmousedown="startMoving('down')" onmouseup="stopMoving()">↓</button>
     </div>
     <script src="script.js"></script>
+    <script>
+        // Désactiver le zoom tactile (pinch-to-zoom) sur mobile
+        document.addEventListener('touchmove', function (event) {
+            if (event.scale !== 1) { event.preventDefault(); }
+        }, { passive: false });
+
+        // Désactiver la possibilité de zoomer avec double tap
+        document.addEventListener('gesturestart', function (event) {
+            event.preventDefault();
+        });
+
+        // Empêche le zoom lors du double-tap sur mobile
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
 </body>
 </html>
