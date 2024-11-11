@@ -6,9 +6,9 @@ let score = 0; // Track score without displaying it
 let targetPoints = [
     { x: 0.4, y: 0.4 }, // Slightly off-centered points to avoid overlap with starting player position
     { x: 0.6, y: 0.5 },
-    { x: 0.7, y: 0.4 },
-    { x: 0.5, y: 0.7 },
-    { x: 0.4, y: 0.6 }
+    { x: 0.5, y: 0.4 },
+    { x: 0.6, y: 0.45 },
+    { x: 0.4, y: 0.5 }
 ];
 let targetIndex = 0; // Track the current target point
 
