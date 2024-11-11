@@ -204,17 +204,21 @@ function stopMoving() {
 }
 
 // Detect orientation change and set needsRefresh flag if going from portrait to landscape
+window.addEventListener("orientationchange", () => {
+    // Check if orientation change has switched to landscape
+    if (Math.abs(window.orientation) === 90) {
+        needsRefresh = true;
+        alert("Please refresh the page after switching to landscape mode."); // Notify the user to refresh
+    }
+});
+
+// Safari-friendly resize event to update elements
 window.addEventListener("resize", () => {
     resizeCanvas(windowWidth, windowHeight);
     updateDimensions();
     setTargetPosition();
-
+    
     if (!gameStarted) {
-        // If moving from portrait to landscape, set the flag to true
-        if (window.innerWidth > window.innerHeight) {
-            needsRefresh = true;
-        }
-
         if (window.innerWidth > window.innerHeight) {
             document.getElementById("orientationMessage").style.display = "none";
         } else {
