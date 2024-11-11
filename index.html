@@ -7,6 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
     <style>
+        /* Empêcher sélection de texte, menu contextuel, et zoom */
         html, body {
             margin: 0;
             padding: 0;
@@ -16,7 +17,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            -webkit-touch-callout: none; /* Disable long-press context menu on iOS */
+            -webkit-touch-callout: none; /* iOS long press */
+            user-select: none; /* Désactive sélection de texte */
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            -moz-user-select: none;
+            touch-action: manipulation; /* Désactive le double-tap zoom sur mobile */
         }
 
         canvas {
@@ -25,9 +31,10 @@
             height: 100vh;
         }
 
+        /* Ajuster la position des boutons plus haut */
         .controls {
             position: absolute;
-            bottom: 20px;
+            bottom: 80px; /* Plus haut qu'avant */
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -38,9 +45,11 @@
         .controls button {
             padding: 10px;
             font-size: 16px;
-            user-select: none; /* Prevent text selection */
+            user-select: none; /* Empêche sélection du texte */
             -webkit-user-select: none;
             -ms-user-select: none;
+            outline: none;
+            cursor: pointer;
         }
 
         #startOverlay, #orientationMessage {
@@ -81,17 +90,15 @@
     </div>
     <script src="script.js"></script>
     <script>
-        // Désactiver le zoom tactile (pinch-to-zoom) sur mobile
+        // Empêche le zoom tactile (pinch-to-zoom) et le double-tap zoom
         document.addEventListener('touchmove', function (event) {
             if (event.scale !== 1) { event.preventDefault(); }
         }, { passive: false });
 
-        // Désactiver la possibilité de zoomer avec double tap
         document.addEventListener('gesturestart', function (event) {
             event.preventDefault();
         });
 
-        // Empêche le zoom lors du double-tap sur mobile
         let lastTouchEnd = 0;
         document.addEventListener('touchend', function (event) {
             const now = (new Date()).getTime();
