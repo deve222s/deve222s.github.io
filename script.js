@@ -154,6 +154,9 @@ function startTyping(dialogText) {
     dialogCharIndex = 0; // Reset the index
     dialogActive = true;
 
+    // Disable buttons immediately upon starting typing
+    document.querySelectorAll('.controls button').forEach(button => button.style.opacity = "0.5");
+
     // Typing interval to gradually reveal the text
     const interval = setInterval(() => {
         if (dialogCharIndex < dialogText.length) {
@@ -161,10 +164,16 @@ function startTyping(dialogText) {
             dialogCharIndex++;
         } else {
             clearInterval(interval); // Stop typing once all characters are displayed
-            setTimeout(disableMovementFor3Seconds, 1000); // Disable movement after typing finishes
+
+            // Keep buttons disabled for additional 3000 ms (to match the 5 seconds delay)
+            setTimeout(() => {
+                dialogActive = false; // Allow movement again
+                document.querySelectorAll('.controls button').forEach(button => button.style.opacity = "1");
+            }, 3000); // 3000 ms + typing time = approximately 5000 ms total
         }
     }, typingSpeed);
 }
+
 
 // Display dialog box over target with dynamic width based on currentDialogText
 function showDialogBox(dialogText) {
