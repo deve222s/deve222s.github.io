@@ -1,69 +1,59 @@
 let player, target;
 let message = "Bon Anniversaire!";
 let gameOver = false;
+let gameStarted = false; // Track if game has started
 let moveInterval;
-let score = 0; // Track score without displaying it
+let score = 0;
 let targetPoints = [
-    { x: 0.45, y: 0.68 }, // Slightly off-centered points to avoid overlap with starting player position
+    { x: 0.45, y: 0.68 },
     { x: 0.6, y: 0.65 },
     { x: 0.8, y: 0.80 },
     { x: 0.67, y: 0.87 },
     { x: 0.2, y: 0.82 }
 ];
-let targetIndex = 0; // Track the current target point
+let targetIndex = 0;
 
 // Images
 let playerImage, targetImage, backgroundImage;
-let bgWidth, bgHeight; // Store background size
+let bgWidth, bgHeight;
 let playerSize, targetSize;
 let detectionRadius;
 
 function preload() {
-    // Load images - replace with your files as needed
-    playerImage = loadImage("assets/belle.webp"); // Player image
-    targetImage = loadImage("assets/bete.webp"); // Target image
-    backgroundImage = loadImage("assets/background.avif"); // Background image
+    playerImage = loadImage("assets/belle.webp");
+    targetImage = loadImage("assets/bete.webp");
+    backgroundImage = loadImage("assets/background.avif");
 }
 
 function setup() {
-    // Create a responsive canvas based on the window size
     createCanvas(windowWidth, windowHeight);
     updateDimensions();
-
     player = createVector(width / 1.35, height / 1.2);
-    target = createVector(0, 0); // Initialize target with default coordinates
-
-    setTargetPosition(); // Set the initial target position based on predefined points
+    target = createVector(0, 0);
+    setTargetPosition();
 }
 
 function draw() {
+    if (!gameStarted) return; // Only draw if the game has started
+
     if (!gameOver) {
-        // Draw the background image centered within the canvas
         image(backgroundImage, (width - bgWidth) / 2, (height - bgHeight) / 2, bgWidth, bgHeight);
-
-        // Display player character at consistent size
         image(playerImage, player.x - playerSize / 2, player.y - playerSize / 2, playerSize, playerSize);
-
-        // Display target item at consistent size
         image(targetImage, target.x - targetSize / 2, target.y - targetSize / 2, targetSize, targetSize);
 
-        // Check for collision with target
         if (dist(player.x, player.y, target.x, target.y) < detectionRadius) {
-            score++;  // Increment the score (not displayed)
-
-            // Move to the next target position if score is less than 5
+            score++;
             if (score < 5) {
                 targetIndex = (targetIndex + 1) % targetPoints.length;
                 setTargetPosition();
             } else {
-                gameOver = true; // End the game when the score reaches 5
+                gameOver = true;
                 console.log("Game over! Bon Anniversaire!");
             }
         }
     } else {
-        // Display game over message
         background(200);
-        textSize(bgWidth * 0.1); // Adjust text size based on background width
+        textSize(bgWidth * 0.1);
         fill(0);
         textAlign(CENTER, CENTER);
         text(message, width / 2, height / 2);
@@ -71,19 +61,13 @@ function draw() {
 }
 
 function setTargetPosition() {
-    // Calculate the exact position based on the background display dimensions and percentages
     const offsetX = (width - bgWidth) / 2;
     const offsetY = (height - bgHeight) / 2;
-
     target.x = offsetX + targetPoints[targetIndex].x * bgWidth;
     target.y = offsetY + targetPoints[targetIndex].y * bgHeight;
-
-    // Debugging logs to verify target position
-    console.log(`Target position: (${target.x}, ${target.y})`);
 }
 
 function updateDimensions() {
-    // Calculate background dimensions based on aspect ratio
     const bgAspectRatio = backgroundImage.width / backgroundImage.height;
     if (width / height > bgAspectRatio) {
         bgWidth = width;
@@ -92,26 +76,35 @@ function updateDimensions() {
         bgHeight = height;
         bgWidth = height * bgAspectRatio;
     }
-
-    // Set smaller player and target sizes
-    playerSize = bgWidth * 0.05; // Reduced player size
-    targetSize = bgWidth * 0.03; // Reduced target size
-    detectionRadius = targetSize * 1.2; // Adjust detection radius based on new target size
+    playerSize = bgWidth * 0.05;
+    targetSize = bgWidth * 0.03;
+    detectionRadius = targetSize * 1.2;
 }
 
-// Functions for movement controls
+// Start game function triggered by start button
+function startGame() {
+    if (window.innerWidth > window.innerHeight) {
+        document.getElementById("startOverlay").style.display = "none";
+        document.getElementById("orientationMessage").style.display = "none";
+        gameStarted = true;
+    } else {
+        document.getElementById("orientationMessage").style.display = "flex";
+    }
+}
+
+// Movement controls
 function startMoving(direction) {
-    const step = playerSize * 0.12; // Proportional step size
+    if (!gameStarted || gameOver) return;
+
+    const step = playerSize * 0.12;
 
     function move() {
-        // Move the player, ensuring they remain within canvas boundaries
         if (direction === 'up') player.y = max(0, player.y - step);
         if (direction === 'down') player.y = min(height - playerSize, player.y + step);
         if (direction === 'left') player.x = max(0, player.x - step);
         if (direction === 'right') player.x = min(width - playerSize, player.x + step);
     }
 
-    // Repeat the movement at intervals
     moveInterval = setInterval(move, 35);
 }
 
@@ -119,9 +112,13 @@ function stopMoving() {
     clearInterval(moveInterval);
 }
 
-// Update canvas and elements if the window is resized
-function windowResized() {
+window.addEventListener("resize", () => {
     resizeCanvas(windowWidth, windowHeight);
-    updateDimensions(); // Recalculate dimensions
-    setTargetPosition(); // Recalculate target position on window resize
-}
+    updateDimensions();
+    setTargetPosition();
+    if (!gameStarted && window.innerWidth > window.innerHeight) {
+        document.getElementById("orientationMessage").style.display = "none";
+    } else if (!gameStarted) {
+        document.getElementById("orientationMessage").style.display = "flex";
+    }
+});
