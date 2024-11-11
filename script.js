@@ -30,16 +30,18 @@ let currentDialogText = ""; // Holds the portion of text currently shown
 let dialogCharIndex = 0; // Tracks the current character index being displayed
 let typingSpeed = 50; // Milliseconds between each character
 
-// Images
+// Images and music
 let playerImage, targetImage, backgroundImage;
 let bgWidth, bgHeight;
 let playerSize, targetSize;
 let detectionRadius;
+let backgroundMusic; // Variable to store background music
 
 function preload() {
     playerImage = loadImage("assets/belle.webp");
     targetImage = loadImage("assets/bete.webp");
     backgroundImage = loadImage("assets/background.avif");
+    backgroundMusic = loadSound("assets/music.mp3"); // Load music file
 }
 
 function setup() {
@@ -67,6 +69,11 @@ function draw() {
         fill(0);
         textAlign(CENTER, CENTER);
         text(message, width / 2, height / 2);
+
+        // Stop the background music if the game is over
+        if (backgroundMusic.isPlaying()) {
+            backgroundMusic.stop();
+        }
         return;
     }
 
@@ -126,6 +133,11 @@ function startGame() {
         document.getElementById("orientationMessage").style.display = "none";
         gameStarted = true;
 
+        // Start the background music
+        if (backgroundMusic && !backgroundMusic.isPlaying()) {
+            backgroundMusic.loop(); // Loop the music throughout the game
+        }
+
         if (document.documentElement.requestFullscreen) {
             document.documentElement.requestFullscreen();
         } else if (document.documentElement.webkitRequestFullscreen) {
@@ -184,23 +196,14 @@ function disableMovementFor3Seconds() {
     }, 5000);
 }
 
-
-// Movement controls with stricter disable handling
+// Movement controls with temporary disable handling
 function startMoving(direction) {
-    // Clear any existing movement intervals to prevent stacking
-    clearInterval(moveInterval);
-
-    // Block movement if dialog is active or game is not started
     if (!gameStarted || gameOver || dialogActive) return;
 
     const step = playerSize * 0.12;
 
-    // Define the movement function with an extra check for dialogActive
     function move() {
-        if (dialogActive) {
-            clearInterval(moveInterval); // Stop movement if dialog is active
-            return;
-        }
+        if (dialogActive) return; // Stop movement if dialog is active
 
         if (direction === 'up') player.y = max(0, player.y - step);
         if (direction === 'down') player.y = min(height - playerSize, player.y + step);
@@ -208,7 +211,6 @@ function startMoving(direction) {
         if (direction === 'right') player.x = min(width - playerSize, player.x + step);
     }
 
-    // Start a new interval for the movement
     moveInterval = setInterval(move, 35);
 }
 
@@ -216,13 +218,11 @@ function stopMoving() {
     clearInterval(moveInterval);
 }
 
-
 // Detect orientation change and set needsRefresh flag if going from portrait to landscape
 window.addEventListener("orientationchange", () => {
-    // Check if orientation change has switched to landscape
     if (Math.abs(window.orientation) === 90) {
         needsRefresh = true;
-        alert("Please refresh the page after switching to landscape mode."); // Notify the user to refresh
+        alert("Please refresh the page after switching to landscape mode.");
     }
 });
 
