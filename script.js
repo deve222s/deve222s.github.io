@@ -4,11 +4,11 @@ let gameOver = false;
 let moveInterval;
 let score = 0; // Track score without displaying it
 let targetPoints = [
-    { x: 0.4, y: 0.4 }, // Slightly off-centered points to avoid overlap with starting player position
-    { x: 0.6, y: 0.5 },
-    { x: 0.5, y: 0.4 },
-    { x: 0.6, y: 0.45 },
-    { x: 0.4, y: 0.5 }
+    { x: 0.45, y: 0.68 }, // Slightly off-centered points to avoid overlap with starting player position
+    { x: 0.6, y: 0.65 },
+    { x: 0.8, y: 0.80 },
+    { x: 0.67, y: 0.87 },
+    { x: 0.2, y: 0.82 }
 ];
 let targetIndex = 0; // Track the current target point
 
@@ -30,7 +30,7 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     updateDimensions();
 
-    player = createVector(width / 2, height / 2);
+    player = createVector(width / 1.35, height / 1.2);
     target = createVector(0, 0); // Initialize target with default coordinates
 
     setTargetPosition(); // Set the initial target position based on predefined points
@@ -96,7 +96,7 @@ function updateDimensions() {
     // Set smaller player and target sizes
     playerSize = bgWidth * 0.05; // Reduced player size
     targetSize = bgWidth * 0.03; // Reduced target size
-    detectionRadius = targetSize * 1.5; // Adjust detection radius based on new target size
+    detectionRadius = targetSize * 1.2; // Adjust detection radius based on new target size
 }
 
 // Functions for movement controls
@@ -112,7 +112,7 @@ function startMoving(direction) {
     }
 
     // Repeat the movement at intervals
-    moveInterval = setInterval(move, 30);
+    moveInterval = setInterval(move, 35);
 }
 
 function stopMoving() {
