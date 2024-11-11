@@ -4,6 +4,7 @@ let gameOver = false;
 let gameStarted = false;
 let moveInterval;
 let score = 0;
+let needsRefresh = false; // New flag to detect orientation change
 let targetPoints = [
     { x: 0.45, y: 0.68 },
     { x: 0.6, y: 0.65 },
@@ -55,7 +56,6 @@ function setup() {
 
     disableMovementFor3Seconds(); // Disable movement initially
 }
-
 
 function draw() {
     if (!gameStarted) return;
@@ -115,6 +115,12 @@ function updateDimensions() {
 
 // Start game function triggered by start button
 function startGame() {
+    // Prevent game start if needsRefresh is true
+    if (needsRefresh) {
+        alert("Please refresh the page after switching to landscape mode.");
+        return;
+    }
+
     if (window.innerWidth > window.innerHeight) {
         document.getElementById("startOverlay").style.display = "none";
         document.getElementById("orientationMessage").style.display = "none";
@@ -197,13 +203,22 @@ function stopMoving() {
     clearInterval(moveInterval);
 }
 
+// Detect orientation change and set needsRefresh flag if going from portrait to landscape
 window.addEventListener("resize", () => {
     resizeCanvas(windowWidth, windowHeight);
     updateDimensions();
     setTargetPosition();
-    if (!gameStarted && window.innerWidth > window.innerHeight) {
-        document.getElementById("orientationMessage").style.display = "none";
-    } else if (!gameStarted) {
-        document.getElementById("orientationMessage").style.display = "flex";
+
+    if (!gameStarted) {
+        // If moving from portrait to landscape, set the flag to true
+        if (window.innerWidth > window.innerHeight) {
+            needsRefresh = true;
+        }
+
+        if (window.innerWidth > window.innerHeight) {
+            document.getElementById("orientationMessage").style.display = "none";
+        } else {
+            document.getElementById("orientationMessage").style.display = "flex";
+        }
     }
 });
