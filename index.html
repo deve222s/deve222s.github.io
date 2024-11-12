@@ -31,8 +31,8 @@
         /* Position the controls slightly further from the top-left corner */
         .controls {
             position: absolute;
-            top: 50px;
-            left: 40px;
+            top: 50px; /* Adjusted to be further down */
+            left: 40px; /* Adjusted to be further right */
             display: grid;
             grid-template-areas:
                 ". up ."
@@ -49,11 +49,10 @@
             padding: 10px;
             font-size: 16px;
             user-select: none;
-            cursor: pointer;
-            width: 50px;
-            height: 50px;
             -webkit-user-select: none;
-            touch-action: none;
+            cursor: pointer;
+            width: 50px; /* Specify width for uniform button size */
+            height: 50px; /* Specify height for uniform button size */
         }
 
         /* Assign each button to its correct area */
@@ -82,39 +81,6 @@
             text-align: center;
             padding: 20px;
         }
-
-        /* Hidden text style */
-        #hiddenText {
-            display: none; /* Hide text initially */
-            position: absolute;
-            top: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            max-width: 80%;
-            font-size: 18px;
-            color: white;
-            padding: 20px;
-            background-color: rgba(0, 0, 0, 0.8);
-            border-radius: 8px;
-            text-align: center;
-            z-index: 15;
-        }
-
-        /* Small, circular button in the top right corner */
-        #revealButton {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 20px;
-            height: 20px;
-            background-color: #4CAF50;
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-            z-index: 30;
-            display: none; /* Initially hidden */
-            touch-action: none; /* Prevents unintended touch interactions */
-        }
     </style>
 </head>
 <body>
@@ -125,19 +91,15 @@
         Tourne ton téléphone en paysage mymou ahah.<br>
         Puis relance la page
     </div>
-
-    <!-- Bouton de révélation en haut à droite -->
-    <button id="revealButton" onclick="revealText()"></button>
-
-    <!-- Texte caché à révéler -->
-    <div id="hiddenText">
-        "Mylène, tu as 21 ans..."
+    <div class="controls">
+        <button class="up" ontouchstart="startMoving('up')" ontouchend="stopMoving()" onmousedown="startMoving('up')" onmouseup="stopMoving()">↑</button>
+        <button class="left" ontouchstart="startMoving('left')" ontouchend="stopMoving()" onmousedown="startMoving('left')" onmouseup="stopMoving()">←</button>
+        <button class="right" ontouchstart="startMoving('right')" ontouchend="stopMoving()" onmousedown="startMoving('right')" onmouseup="stopMoving()">→</button>
+        <button class="down" ontouchstart="startMoving('down')" ontouchend="stopMoving()" onmousedown="startMoving('down')" onmouseup="stopMoving()">↓</button>
     </div>
-
-    <script src="script.js"></script> <!-- Charge script.js en premier -->
-
+    <script src="script.js"></script>
     <script>
-        // Empêche le zoom par pincement et le double-tap pour zoomer
+        // Prevent pinch-to-zoom and double-tap zoom
         document.addEventListener('touchmove', function (event) {
             if (event.scale !== 1) { event.preventDefault(); }
         }, { passive: false });
@@ -154,23 +116,6 @@
             }
             lastTouchEnd = now;
         }, false);
-
-        // Function to toggle the visibility of the hidden text
-        function revealText() {
-            if (!gameOver) return; // Exécute seulement si gameOver est true
-            const hiddenText = document.getElementById("hiddenText");
-            hiddenText.style.display = hiddenText.style.display === "none" ? "block" : "none";
-        }
-
-        // Affiche le bouton de révélation seulement si le jeu est terminé
-        function checkGameOver() {
-            if (gameOver) {
-                document.getElementById("revealButton").style.display = "block";
-            }
-        }
-
-        // Appelle checkGameOver périodiquement pour vérifier si le jeu est terminé
-        setInterval(checkGameOver, 100);
     </script>
 </body>
 </html>
