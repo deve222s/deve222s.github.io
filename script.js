@@ -96,7 +96,7 @@ function preload() {
     targetImage = loadImage("assets/bete.webp");
     backgroundImage = loadImage("assets/background.avif");
     backgroundMusic = loadSound("assets/music.mp3");
-    poemMusic = loadSound("assets/MainPoem.mp3"); // Load the poem music file
+    poemMusic = loadSound("assets/mainPoem.mp3"); // Load the poem music file
 
 
     for (let i = 0; i < 7; i++) {
