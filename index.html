@@ -31,8 +31,8 @@
         /* Position the controls slightly further from the top-left corner */
         .controls {
             position: absolute;
-            top: 50px; /* Adjusted to be further down */
-            left: 40px; /* Adjusted to be further right */
+            top: 50px;
+            left: 40px;
             display: grid;
             grid-template-areas:
                 ". up ."
@@ -49,10 +49,9 @@
             padding: 10px;
             font-size: 16px;
             user-select: none;
-            -webkit-user-select: none;
             cursor: pointer;
-            width: 50px; /* Specify width for uniform button size */
-            height: 50px; /* Specify height for uniform button size */
+            width: 50px;
+            height: 50px;
         }
 
         /* Assign each button to its correct area */
@@ -81,6 +80,38 @@
             text-align: center;
             padding: 20px;
         }
+
+        /* Hidden text style */
+        #hiddenText {
+            display: none; /* Hide text initially */
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 80%;
+            font-size: 18px;
+            color: white;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 8px;
+            text-align: center;
+            z-index: 15;
+        }
+
+        /* Small, circular button in the top right corner */
+        #revealButton {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            z-index: 30;
+            display: none; /* Initially hidden */
+        }
     </style>
 </head>
 <body>
@@ -91,31 +122,41 @@
         Tourne ton téléphone en paysage mymou ahah.<br>
         Puis relance la page
     </div>
+    
+    <!-- Controls -->
     <div class="controls">
         <button class="up" ontouchstart="startMoving('up')" ontouchend="stopMoving()" onmousedown="startMoving('up')" onmouseup="stopMoving()">↑</button>
         <button class="left" ontouchstart="startMoving('left')" ontouchend="stopMoving()" onmousedown="startMoving('left')" onmouseup="stopMoving()">←</button>
         <button class="right" ontouchstart="startMoving('right')" ontouchend="stopMoving()" onmousedown="startMoving('right')" onmouseup="stopMoving()">→</button>
         <button class="down" ontouchstart="startMoving('down')" ontouchend="stopMoving()" onmousedown="startMoving('down')" onmouseup="stopMoving()">↓</button>
     </div>
+
+    <!-- Small, circular button in the top right corner to reveal text -->
+    <button id="revealButton" onclick="revealText()"></button>
+    
+    <!-- Hidden text to be revealed -->
+    <div id="hiddenText">
+        "Mylène, tu as 21 ans malgré le fait que tu m'ais oublié cela ne pourra plus jamais arrivé. Avec toi je veux évoluer, car ma vie tu as marqué. Malgrès le fait que tu sois casse pied, un Homme bien tu as mérité. Je te souhaite bonheur et prospérité, et une place dans la vie de ton bien aimé. Mylenka passe une merveilleuse journée, que Dieu te bénisse et t'assagisse, qu'il fasse de toi une orchidée, que personne n'osera jamais butiner. Malgré mes blagues répétées, et mes rimes pauvres finissant toujours en é,je pense que mon Amour j'ai pu te le démontrer. Trève de plaisenterie, nous ne sommes pas là pour manger du riz, à la porte de choisy. Trève de plaisenterie, Passe une bonne 21ème année, et pleins de réussite et de joie. ILY"
+    </div>
+
     <script src="script.js"></script>
     <script>
-        // Prevent pinch-to-zoom and double-tap zoom
-        document.addEventListener('touchmove', function (event) {
-            if (event.scale !== 1) { event.preventDefault(); }
-        }, { passive: false });
+        // Function to toggle the visibility of the hidden text
+        function revealText() {
+            if (!gameOver) return; // Only allow reveal when game is over
+            const hiddenText = document.getElementById("hiddenText");
+            hiddenText.style.display = hiddenText.style.display === "none" ? "block" : "none";
+        }
 
-        document.addEventListener('gesturestart', function (event) {
-            event.preventDefault();
-        });
-
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function (event) {
-            const now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
+        // Show reveal button only when gameOver is true
+        function checkGameOver() {
+            if (gameOver) {
+                document.getElementById("revealButton").style.display = "block";
             }
-            lastTouchEnd = now;
-        }, false);
+        }
+
+        // Call checkGameOver inside the game loop or wherever gameOver is set to true
+        setInterval(checkGameOver, 100); // Check periodically if gameOver is true
     </script>
 </body>
 </html>
