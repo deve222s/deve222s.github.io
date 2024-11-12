@@ -4,7 +4,7 @@ let gameOver = false;
 let gameStarted = false;
 let moveInterval;
 let score = 0;
-let needsRefresh = false; // New flag to detect orientation change
+let needsRefresh = false;
 let targetPoints = [
     { x: 0.45, y: 0.68 },
     { x: 0.6, y: 0.65 },
@@ -14,7 +14,7 @@ let targetPoints = [
 ];
 let targetIndex = 0;
 let dialogActive = true;
-let dialogTimeout;
+let finalDialogShown = false;
 
 // Dialog messages for each target
 let dialogMessages = [
@@ -26,22 +26,39 @@ let dialogMessages = [
 ];
 
 // Typewriter effect variables
-let currentDialogText = ""; // Holds the portion of text currently shown
-let dialogCharIndex = 0; // Tracks the current character index being displayed
-let typingSpeed = 50; // Milliseconds between each character
+let currentDialogText = "";
+let dialogCharIndex = 0;
+let typingSpeed = 50;
 
 // Images and music
 let playerImage, targetImage, backgroundImage;
 let bgWidth, bgHeight;
 let playerSize, targetSize;
 let detectionRadius;
-let backgroundMusic; // Variable to store background music
+let backgroundMusic;
+
+// Placeholder for additional character images and their closer relative positions to target
+let characterImages = [];
+let characterPositions = [
+    { x: -0.12, y: -0.12 },
+    { x: 0, y: -0.15 },
+    { x: 0.12, y: -0.12 },
+    { x: -0.15, y: 0 },
+    { x: 0.15, y: 0 },
+    { x: -0.12, y: 0.12 },
+    { x: 0.12, y: 0.12 }
+];
+
 
 function preload() {
     playerImage = loadImage("assets/belle.webp");
     targetImage = loadImage("assets/bete.webp");
     backgroundImage = loadImage("assets/background.avif");
-    backgroundMusic = loadSound("assets/music.mp3"); // Load music file
+    backgroundMusic = loadSound("assets/music.mp3");
+
+    for (let i = 0; i < 7; i++) {
+        characterImages.push(loadImage(`assets/characters${i + 1}.webp`));
+    }
 }
 
 function setup() {
@@ -51,12 +68,11 @@ function setup() {
     target = createVector(0, 0);
     setTargetPosition();
 
-    // Add a delay before the first dialog starts typing
     setTimeout(() => {
-        startTyping(dialogMessages[targetIndex]); // Start typing the first dialog after delay
-    }, 1500); // 1000 ms = 1 second delay
+        startTyping(dialogMessages[targetIndex]);
+    }, 1500);
 
-    disableMovementFor3Seconds(); // Disable movement initially
+    disableMovementFor3Seconds();
 }
 
 function draw() {
@@ -70,7 +86,6 @@ function draw() {
         textAlign(CENTER, CENTER);
         text(message, width / 2, height / 2);
 
-        // Stop the background music if the game is over
         if (backgroundMusic.isPlaying()) {
             backgroundMusic.stop();
         }
@@ -78,11 +93,16 @@ function draw() {
     }
 
     image(backgroundImage, (width - bgWidth) / 2, (height - bgHeight) / 2, bgWidth, bgHeight);
-    image(playerImage, player.x - playerSize / 2, player.y - playerSize / 2, playerSize, playerSize);
-    image(targetImage, target.x - targetSize / 2, target.y - targetSize / 2, targetSize, targetSize);
+
+    if (finalDialogShown) {
+        displayAdditionalCharacters(true); // Call with `true` to trigger final positioning and scaling effect
+    } else {
+        image(playerImage, player.x - playerSize / 2, player.y - playerSize / 2, playerSize, playerSize);
+        image(targetImage, target.x - targetSize / 2, target.y - targetSize / 2, targetSize, targetSize);
+    }
 
     if (dialogActive) {
-        showDialogBox(currentDialogText); // Show the portion of text typed so far
+        showDialogBox(currentDialogText);
     }
 
     if (dist(player.x, player.y, target.x, target.y) < detectionRadius && !dialogActive) {
@@ -90,11 +110,18 @@ function draw() {
         if (score < 5) {
             targetIndex = (targetIndex + 1) % targetPoints.length;
             setTargetPosition();
-            startTyping(dialogMessages[targetIndex]); // Start typing for the new target’s dialog
+            startTyping(dialogMessages[targetIndex]);
             disableMovementFor3Seconds();
+        } else if (!finalDialogShown) {
+            finalDialogShown = true;
+            currentDialogText = "This is the final celebration message!";
+            dialogActive = true;
+            startTyping(currentDialogText);
         } else {
-            gameOver = true;
-            console.log("Game over! Bon Anniversaire!");
+            setTimeout(() => {
+                gameOver = true;
+                console.log("Game over! Bon Anniversaire!");
+            }, 10000); // 10-second delay before "Bon Anniversaire"
         }
     }
 }
@@ -120,9 +147,45 @@ function updateDimensions() {
     detectionRadius = targetSize * 1.2;
 }
 
+// Function to display additional characters with optional "grow and move up" effect
+function displayAdditionalCharacters(finalEffect = false) {
+    let sizeMultiplier = finalEffect ? 1.5 : 1;
+    let positionOffset = finalEffect ? -0.15 * bgHeight : 0;
+
+    // Draw player and target with increased size and position if final effect is true
+    image(playerImage, player.x - (playerSize * sizeMultiplier) / 2, player.y - (playerSize * sizeMultiplier) / 2 + positionOffset, playerSize * sizeMultiplier, playerSize * sizeMultiplier);
+    image(targetImage, target.x - (targetSize * sizeMultiplier) / 2, target.y - (targetSize * sizeMultiplier) / 2 + positionOffset, targetSize * sizeMultiplier, targetSize * sizeMultiplier);
+
+    // Draw additional characters around target with final effect adjustments
+    characterPositions.forEach((pos, index) => {
+        let charX = target.x + pos.x * bgWidth;
+        let charY = target.y + pos.y * bgHeight + positionOffset;
+        image(characterImages[index], charX - (targetSize * sizeMultiplier) / 2, charY - (targetSize * sizeMultiplier) / 2, targetSize * sizeMultiplier, targetSize * sizeMultiplier);
+    });
+}
+
+
+// Display dialog box with adjusted distance above the target in final position
+function showDialogBox(dialogText) {
+    textSize(12);
+    const padding = 10;
+    const textWidthWithPadding = textWidth(dialogText) + padding * 2;
+    const boxHeight = 30;
+    let dialogOffset = finalDialogShown ? 100 : 5; // Greatly increased offset for final dialog
+
+    fill(255);
+    stroke(0);
+    strokeWeight(2);
+    rect(target.x - textWidthWithPadding / 2, target.y - targetSize - boxHeight - dialogOffset, textWidthWithPadding, boxHeight, 5);
+
+    fill(0);
+    noStroke();
+    textAlign(CENTER, CENTER);
+    text(dialogText, target.x, target.y - targetSize - boxHeight / 2 - dialogOffset);
+}
+
 // Start game function triggered by start button
 function startGame() {
-    // Prevent game start if needsRefresh is true
     if (needsRefresh) {
         alert("Please refresh the page after switching to landscape mode.");
         return;
@@ -133,9 +196,8 @@ function startGame() {
         document.getElementById("orientationMessage").style.display = "none";
         gameStarted = true;
 
-        // Start the background music
         if (backgroundMusic && !backgroundMusic.isPlaying()) {
-            backgroundMusic.loop(); // Loop the music throughout the game
+            backgroundMusic.loop();
         }
 
         if (document.documentElement.requestFullscreen) {
@@ -150,30 +212,26 @@ function startGame() {
 
 // Typewriter effect for dialog
 function startTyping(dialogText) {
-    currentDialogText = ""; // Reset the dialog text
-    dialogCharIndex = 0; // Reset the index
+    currentDialogText = "";
+    dialogCharIndex = 0;
     dialogActive = true;
 
-    // Disable buttons immediately upon starting typing
     document.querySelectorAll('.controls button').forEach(button => button.style.opacity = "0.5");
 
-    // Typing interval to gradually reveal the text
     const interval = setInterval(() => {
         if (dialogCharIndex < dialogText.length) {
             currentDialogText += dialogText[dialogCharIndex];
             dialogCharIndex++;
         } else {
-            clearInterval(interval); // Stop typing once all characters are displayed
+            clearInterval(interval);
 
-            // Keep buttons disabled for additional 3000 ms (to match the 5 seconds delay)
             setTimeout(() => {
-                dialogActive = false; // Allow movement again
+                dialogActive = false;
                 document.querySelectorAll('.controls button').forEach(button => button.style.opacity = "1");
-            }, 3000); // 3000 ms + typing time = approximately 5000 ms total
+            }, 3000);
         }
     }, typingSpeed);
 }
-
 
 // Display dialog box over target with dynamic width based on currentDialogText
 function showDialogBox(dialogText) {
@@ -195,12 +253,12 @@ function showDialogBox(dialogText) {
 
 // Disable movement for 3 seconds and dim controls
 function disableMovementFor3Seconds() {
-    clearInterval(moveInterval); // Ensure no movement intervals continue
-    dialogActive = true; // Ensure dialog is active during the delay
+    clearInterval(moveInterval);
+    dialogActive = true;
     document.querySelectorAll('.controls button').forEach(button => button.style.opacity = "0.5");
 
     setTimeout(() => {
-        dialogActive = false; // Allow movement again
+        dialogActive = false;
         document.querySelectorAll('.controls button').forEach(button => button.style.opacity = "1");
     }, 5000);
 }
@@ -212,7 +270,7 @@ function startMoving(direction) {
     const step = playerSize * 0.12;
 
     function move() {
-        if (dialogActive) return; // Stop movement if dialog is active
+        if (dialogActive) return;
 
         if (direction === 'up') player.y = max(0, player.y - step);
         if (direction === 'down') player.y = min(height - playerSize, player.y + step);
@@ -226,26 +284,3 @@ function startMoving(direction) {
 function stopMoving() {
     clearInterval(moveInterval);
 }
-
-// Detect orientation change and set needsRefresh flag if going from portrait to landscape
-window.addEventListener("orientationchange", () => {
-    if (Math.abs(window.orientation) === 90) {
-        needsRefresh = true;
-        alert("Please refresh the page after switching to landscape mode.");
-    }
-});
-
-// Safari-friendly resize event to update elements
-window.addEventListener("resize", () => {
-    resizeCanvas(windowWidth, windowHeight);
-    updateDimensions();
-    setTargetPosition();
-    
-    if (!gameStarted) {
-        if (window.innerWidth > window.innerHeight) {
-            document.getElementById("orientationMessage").style.display = "none";
-        } else {
-            document.getElementById("orientationMessage").style.display = "flex";
-        }
-    }
-});
