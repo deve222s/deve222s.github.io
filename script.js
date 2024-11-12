@@ -92,17 +92,80 @@ let characterPositions = [
 
 
 function preload() {
-    playerImage = loadImage("assets/belle.webp");
-    targetImage = loadImage("assets/bete.webp");
-    backgroundImage = loadImage("assets/background.avif");
-    backgroundMusic = loadSound("assets/music.mp3");
-    poemMusic = loadSound("assets/mainpoem.mp3"); // Load the poem music file
+    // Define an array to hold all loading promises
+    const loadPromises = [];
 
+    // Load player image
+    loadPromises.push(new Promise((resolve, reject) => {
+        console.log("Loading player image...");
+        playerImage = loadImage("assets/belle.webp", resolve, () => {
+            console.error("Failed to load player image");
+            reject();
+        });
+    }));
 
+    // Load target image
+    loadPromises.push(new Promise((resolve, reject) => {
+        console.log("Loading target image...");
+        targetImage = loadImage("assets/bete.webp", resolve, () => {
+            console.error("Failed to load target image");
+            reject();
+        });
+    }));
+
+    // Load background image
+    loadPromises.push(new Promise((resolve, reject) => {
+        console.log("Loading background image...");
+        backgroundImage = loadImage("assets/background.avif", resolve, () => {
+            console.error("Failed to load background image");
+            reject();
+        });
+    }));
+
+    // Load background music
+    loadPromises.push(new Promise((resolve, reject) => {
+        console.log("Loading background music...");
+        backgroundMusic = loadSound("assets/music.mp3", resolve, () => {
+            console.error("Failed to load background music");
+            reject();
+        });
+    }));
+
+    // Load poem music
+    loadPromises.push(new Promise((resolve, reject) => {
+        console.log("Loading poem music...");
+        poemMusic = loadSound("assets/mainPoem.mp3", resolve, () => {
+            console.error("Failed to load poem music");
+            reject();
+        });
+    }));
+
+    // Load character images
     for (let i = 0; i < 7; i++) {
-        characterImages.push(loadImage(`assets/characters${i + 1}.webp`));
+        loadPromises.push(new Promise((resolve, reject) => {
+            console.log(`Loading character image ${i + 1}...`);
+            const characterImage = loadImage(`assets/characters${i + 1}.webp`, () => {
+                characterImages.push(characterImage);
+                resolve();
+            }, () => {
+                console.error(`Failed to load character image ${i + 1}`);
+                reject();
+            });
+        }));
     }
+
+    // Wait for all promises to complete
+    Promise.all(loadPromises)
+        .then(() => {
+            console.log("All assets loaded successfully.");
+            // Start the game or proceed to the next step
+        })
+        .catch(() => {
+            console.error("One or more assets failed to load.");
+            // Handle the loading error, e.g., show an error message or retry
+        });
 }
+
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
