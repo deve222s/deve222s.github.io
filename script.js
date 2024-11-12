@@ -18,11 +18,11 @@ let finalDialogShown = false;
 
 // Dialog messages for each target
 let dialogMessages = [
-    "Hello there! I'm dialog 1",
-    "Watch out for dialog 2!",
-    "Dialog 3 says hi!",
-    "Almost there, says dialog 4!",
-    "Final one, dialog 5!"
+    "Hello there! I'm dialog 1 balbalbalbalblalbalbbablablalb",
+    "Watch out for dialog 2!balbalbalbalblalbalbbablablalb",
+    "Dialog 3 says hibalbalbalbalblalbalbbablablalbbalbalbalbalblalbalbbablablalbbalbalbalbalblalbalbbablablalb!",
+    "Almost there, says balbalbalbalblalbalbbablablalb 4!",
+    "Final one, balbalbalbalblalbalbbablablalbbalbalbalbalblalbalbbablablalbbalbalbalbalblalbalbbablablalb 5!"
 ];
 
 // Typewriter effect variables
@@ -41,7 +41,7 @@ let backgroundMusic;
 let characterImages = [];
 let characterPositions = [
     { x: -0.12, y: -0.12 },
-    { x: 0, y: -0.15 },
+    { x: 0, y: 0.15 },
     { x: 0.12, y: -0.12 },
     { x: -0.15, y: 0 },
     { x: 0.15, y: 0 },
@@ -114,14 +114,14 @@ function draw() {
             disableMovementFor3Seconds();
         } else if (!finalDialogShown) {
             finalDialogShown = true;
-            currentDialogText = "This is the final celebration message!";
+            currentDialogText = "This is the final celebration message blablablablablalbalblablala! fdsfsdfsfsff";
             dialogActive = true;
             startTyping(currentDialogText);
         } else {
             setTimeout(() => {
                 gameOver = true;
                 console.log("Game over! Bon Anniversaire!");
-            }, 10000); // 10-second delay before "Bon Anniversaire"
+            }, 7000); // 10-second delay before "Bon Anniversaire"
         }
     }
 }
@@ -225,10 +225,13 @@ function startTyping(dialogText) {
         } else {
             clearInterval(interval);
 
+            // Si c'est le dernier message, augmentez le délai de fermeture
+            let closeDelay = finalDialogShown ? 7000 : 3000; // 7 seconds pour le dernier dialog, 3 seconds sinon
+
             setTimeout(() => {
                 dialogActive = false;
                 document.querySelectorAll('.controls button').forEach(button => button.style.opacity = "1");
-            }, 3000);
+            }, closeDelay);
         }
     }, typingSpeed);
 }
@@ -237,19 +240,45 @@ function startTyping(dialogText) {
 function showDialogBox(dialogText) {
     textSize(12);
     const padding = 10;
-    const textWidthWithPadding = textWidth(dialogText) + padding * 2;
-    const boxHeight = 30;
+    const maxWidth = 150; // Maximum width before wrapping text to the next line
+    const boxHeight = 14;
+    let dialogOffset = finalDialogShown ? 100 : 5;
 
+    // Split the currently displayed text into lines based on maxWidth
+    let lines = [];
+    let currentLine = "";
+
+    // Dynamically build lines based on the typed text so far
+    for (let i = 0; i < dialogText.length; i++) {
+        currentLine += dialogText[i];
+        if (textWidth(currentLine) > maxWidth || i === dialogText.length - 1) {
+            lines.push(currentLine);
+            currentLine = "";
+        }
+    }
+
+    // Calculate the dynamic width of the box based on the widest line so far
+    let currentBoxWidth = Math.min(maxWidth, Math.max(...lines.map(line => textWidth(line)))) + padding * 2;
+    
+    // Calculate the height of the dialog box based on the number of lines
+    let totalBoxHeight = boxHeight * lines.length + padding * 2;
+
+    // Draw the dialog box with dynamically calculated width and height
     fill(255);
     stroke(0);
     strokeWeight(2);
-    rect(target.x - textWidthWithPadding / 2, target.y - targetSize - boxHeight - 5, textWidthWithPadding, boxHeight, 5);
+    rect(target.x - currentBoxWidth / 2, target.y - targetSize - totalBoxHeight - dialogOffset, currentBoxWidth, totalBoxHeight, 5);
 
+    // Display each line of text within the dialog box
     fill(0);
     noStroke();
     textAlign(CENTER, CENTER);
-    text(dialogText, target.x, target.y - targetSize - boxHeight / 2 - 5);
+
+    lines.forEach((line, index) => {
+        text(line, target.x, target.y - targetSize - (boxHeight * (lines.length - index)) - dialogOffset);
+    });
 }
+
 
 // Disable movement for 3 seconds and dim controls
 function disableMovementFor3Seconds() {
