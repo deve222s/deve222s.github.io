@@ -40,7 +40,7 @@ let poemLines = [
     "Avec toi je veux évoluer,",
     "car ma vie tu as marqué.",
     "Malgrès le fait que tu sois casse pied,",
-    "un Homme bien tu as mérité.",
+    /*"un Homme bien tu as mérité.",
     "Je te souhaite bonheur et prospérité,",
     "et une place dans la vie de ton bien aimé.",
     "Mylenka passe une merveilleuse journée,",
@@ -56,12 +56,10 @@ let poemLines = [
     "Trève de plaisenterie,",
     "Passe une bonne 21ème année,",
     "et pleins de réussite et de joie.",
-    "ILY"
-
-
+    "ILY"*/
 ];
 let currentPoemLine = "";
-let poemTypingSpeed = 10;
+let poemTypingSpeed = 2;
 let poemCharIndex = Array(poemLines.length).fill(0); // Characters displayed per line
 
 
@@ -77,7 +75,7 @@ let playerSize, targetSize;
 let detectionRadius;
 let backgroundMusic;
 
-let poemStartDelay = 700; // Delay in milliseconds before the poem starts displaying
+let poemStartDelay = 10000; // Delay in milliseconds before the poem starts displaying
 let poemDisplayStarted = false; // Track whether the poem display has started
 
 // Placeholder for additional character images and their closer relative positions to target
