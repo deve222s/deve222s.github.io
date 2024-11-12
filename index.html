@@ -7,7 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
     <style>
-        /* Désactive la sélection de texte, le menu contextuel et le zoom */
+        /* Disable text selection, context menu, and zoom */
         html, body {
             margin: 0;
             padding: 0;
@@ -28,7 +28,7 @@
             height: 100vh;
         }
 
-        /* Position des contrôles */
+        /* Position the controls slightly further from the top-left corner */
         .controls {
             position: absolute;
             top: 50px;
@@ -44,7 +44,7 @@
             z-index: 10;
         }
 
-        /* Style pour les boutons de contrôle */
+        /* Style for control buttons */
         .controls button {
             padding: 10px;
             font-size: 16px;
@@ -52,30 +52,38 @@
             cursor: pointer;
             width: 50px;
             height: 50px;
-            -webkit-user-select: none;
-            touch-action: none;
         }
 
-        /* Position et style du bouton pour révéler le texte */
-        #revealButton {
+        /* Assign each button to its correct area */
+        .up { grid-area: up; }
+        .left { grid-area: left; }
+        .right { grid-area: right; }
+        .down { grid-area: down; }
+
+        #startOverlay, #orientationMessage {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 20px;
-            height: 20px;
-            background-color: #4CAF50;
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-            z-index: 30;
-            display: none; /* Caché au début */
-            -webkit-user-select: none;
-            touch-action: none;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 24px;
+            z-index: 20;
         }
 
-        /* Texte caché */
-        #hiddenText {
+        #orientationMessage {
             display: none;
+            top: 5%;
+            transform: translateY(-20%);
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Hidden text style */
+        #hiddenText {
+            display: none; /* Hide text initially */
             position: absolute;
             top: 20%;
             left: 50%;
@@ -89,6 +97,20 @@
             text-align: center;
             z-index: 15;
         }
+
+        /* Small, circular button in the top right corner */
+        #revealButton {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            z-index: 30;
+        }
     </style>
 </head>
 <body>
@@ -99,30 +121,34 @@
         Tourne ton téléphone en paysage mymou ahah.<br>
         Puis relance la page
     </div>
-
-    <!-- Bouton de révélation en haut à droite -->
-    <button id="revealButton" onclick="revealText()"></button>
-
-    <!-- Texte caché à révéler -->
-    <div id="hiddenText">
-        "Mylène, tu as 21 ans..."
+    
+    <!-- Controls -->
+    <div class="controls">
+        <button class="up" ontouchstart="startMoving('up')" ontouchend="stopMoving()" onmousedown="startMoving('up')" onmouseup="stopMoving()">↑</button>
+        <button class="left" ontouchstart="startMoving('left')" ontouchend="stopMoving()" onmousedown="startMoving('left')" onmouseup="stopMoving()">←</button>
+        <button class="right" ontouchstart="startMoving('right')" ontouchend="stopMoving()" onmousedown="startMoving('right')" onmouseup="stopMoving()">→</button>
+        <button class="down" ontouchstart="startMoving('down')" ontouchend="stopMoving()" onmousedown="startMoving('down')" onmouseup="stopMoving()">↓</button>
     </div>
 
-    <script src="script.js"></script> <!-- Charge script.js en premier -->
+    <!-- Small, circular button in the top right corner to reveal text -->
+    <button id="revealButton" onclick="revealText()"></button>
+    
+    <!-- Hidden text to be revealed -->
+    <div id="hiddenText">
+        "Mylène, tu as 21 ans malgré le fait que tu m'ais oublié cela ne pourra plus jamais arrivé. Avec toi je veux évoluer, car ma vie tu as marqué. Malgrès le fait que tu sois casse pied, un Homme bien tu as mérité. Je te souhaite bonheur et prospérité, et une place dans la vie de ton bien aimé. Mylenka passe une merveilleuse journée, que Dieu te bénisse et t'assagisse, qu'il fasse de toi une orchidée, que personne n'osera jamais butiner. Malgré mes blagues répétées, et mes rimes pauvres finissant toujours en é,je pense que mon Amour j'ai pu te le démontrer. Trève de plaisenterie, nous ne sommes pas là pour manger du riz, à la porte de choisy. Trève de plaisenterie, Passe une bonne 21ème année, et pleins de réussite et de joie. ILY"
+    </div>
 
+    <script src="script.js"></script>
     <script>
-        // Empêche le zoom par pincement et le double-tap pour zoomer
+        // Prevent pinch-to-zoom and double-tap zoom
         document.addEventListener('touchmove', function (event) {
-            if (event.scale !== 1) {
-                event.preventDefault();
-            }
+            if (event.scale !== 1) { event.preventDefault(); }
         }, { passive: false });
 
         document.addEventListener('gesturestart', function (event) {
             event.preventDefault();
         });
 
-        // Empêche le zoom double-tap et autres comportements
         let lastTouchEnd = 0;
         document.addEventListener('touchend', function (event) {
             const now = (new Date()).getTime();
@@ -132,22 +158,11 @@
             lastTouchEnd = now;
         }, false);
 
-        // Fonction pour afficher le texte caché si la partie est finie
+        // Function to toggle the visibility of the hidden text
         function revealText() {
-            if (!gameOver) return; // Exécute seulement si gameOver est true
             const hiddenText = document.getElementById("hiddenText");
             hiddenText.style.display = hiddenText.style.display === "none" ? "block" : "none";
         }
-
-        // Affiche le bouton de révélation seulement si le jeu est terminé
-        function checkGameOver() {
-            if (gameOver) {
-                document.getElementById("revealButton").style.display = "block";
-            }
-        }
-
-        // Appelle checkGameOver périodiquement pour vérifier si le jeu est terminé
-        setInterval(checkGameOver, 100);
     </script>
 </body>
 </html>
