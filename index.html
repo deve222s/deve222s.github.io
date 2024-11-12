@@ -49,10 +49,11 @@
             padding: 10px;
             font-size: 16px;
             user-select: none;
-            -webkit-user-select: none;
             cursor: pointer;
-            width: 50px; /* Specify width for uniform button size */
-            height: 50px; /* Specify height for uniform button size */
+            width: 50px;
+            height: 50px;
+            -webkit-user-select: none;
+            touch-action: none;
         }
 
         /* Assign each button to its correct area */
@@ -111,6 +112,8 @@
             cursor: pointer;
             border: none;
             z-index: 30;
+            display: none; /* Initially hidden */
+            touch-action: none; /* Prevents unintended touch interactions */
         }
     </style>
 </head>
@@ -122,26 +125,19 @@
         Tourne ton téléphone en paysage mymou ahah.<br>
         Puis relance la page
     </div>
-    
-    <!-- Controls -->
-    <div class="controls">
-        <button class="up" ontouchstart="startMoving('up')" ontouchend="stopMoving()" onmousedown="startMoving('up')" onmouseup="stopMoving()">↑</button>
-        <button class="left" ontouchstart="startMoving('left')" ontouchend="stopMoving()" onmousedown="startMoving('left')" onmouseup="stopMoving()">←</button>
-        <button class="right" ontouchstart="startMoving('right')" ontouchend="stopMoving()" onmousedown="startMoving('right')" onmouseup="stopMoving()">→</button>
-        <button class="down" ontouchstart="startMoving('down')" ontouchend="stopMoving()" onmousedown="startMoving('down')" onmouseup="stopMoving()">↓</button>
-    </div>
 
-    <!-- Small, circular button in the top right corner to reveal text -->
+    <!-- Bouton de révélation en haut à droite -->
     <button id="revealButton" onclick="revealText()"></button>
-    
-    <!-- Hidden text to be revealed -->
+
+    <!-- Texte caché à révéler -->
     <div id="hiddenText">
-        "Mylène, tu as 21 ans malgré le fait que tu m'ais oublié cela ne pourra plus jamais arrivé. Avec toi je veux évoluer, car ma vie tu as marqué. Malgrès le fait que tu sois casse pied, un Homme bien tu as mérité. Je te souhaite bonheur et prospérité, et une place dans la vie de ton bien aimé. Mylenka passe une merveilleuse journée, que Dieu te bénisse et t'assagisse, qu'il fasse de toi une orchidée, que personne n'osera jamais butiner. Malgré mes blagues répétées, et mes rimes pauvres finissant toujours en é,je pense que mon Amour j'ai pu te le démontrer. Trève de plaisenterie, nous ne sommes pas là pour manger du riz, à la porte de choisy. Trève de plaisenterie, Passe une bonne 21ème année, et pleins de réussite et de joie. ILY"
+        "Mylène, tu as 21 ans..."
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js"></script> <!-- Charge script.js en premier -->
+
     <script>
-        // Prevent pinch-to-zoom and double-tap zoom
+        // Empêche le zoom par pincement et le double-tap pour zoomer
         document.addEventListener('touchmove', function (event) {
             if (event.scale !== 1) { event.preventDefault(); }
         }, { passive: false });
@@ -161,9 +157,20 @@
 
         // Function to toggle the visibility of the hidden text
         function revealText() {
+            if (!gameOver) return; // Exécute seulement si gameOver est true
             const hiddenText = document.getElementById("hiddenText");
             hiddenText.style.display = hiddenText.style.display === "none" ? "block" : "none";
         }
+
+        // Affiche le bouton de révélation seulement si le jeu est terminé
+        function checkGameOver() {
+            if (gameOver) {
+                document.getElementById("revealButton").style.display = "block";
+            }
+        }
+
+        // Appelle checkGameOver périodiquement pour vérifier si le jeu est terminé
+        setInterval(checkGameOver, 100);
     </script>
 </body>
 </html>
