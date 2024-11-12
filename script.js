@@ -134,7 +134,7 @@ function preload() {
     // Load poem music
     loadPromises.push(new Promise((resolve, reject) => {
         console.log("Loading poem music...");
-        poemMusic = loadSound("assets/mainPoem.mp3", resolve, () => {
+        poemMusic = loadSound("assets/mainpoem.mp3", resolve, () => {
             console.error("Failed to load poem music");
             reject();
         });
